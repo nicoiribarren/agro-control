@@ -25,7 +25,7 @@ export default function App() {
         top: 0,
         zIndex: 100,
       }}>
-        <span style={{ fontSize: 26 }}>🌾</span>
+        <img src="/logo.png" alt="JKI Agro" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
         <div>
           <div style={{ fontWeight: 700, fontSize: 17, lineHeight: 1.2 }}>Agro Control</div>
           <div style={{ fontSize: 11, opacity: .75 }}>Sistema de Ingreso de Camiones</div>
