@@ -7,13 +7,26 @@ const GRANO_ICON  = { Soja: '🫘', Maíz: '🌽', Trigo: '🌾', Girasol: '🌻
 // Modal de egreso
 // ─────────────────────────────────────────────
 function ModalEgreso({ mov, onClose, onEgresado }) {
-  const [kgTara, setKgTara]     = useState('');
-  const [procesando, setProc]   = useState(false);
-  const [error, setError]       = useState('');
-  const [resultado, setResult]  = useState(null); // { kg_netos, hora_egreso }
+  const [kgTara, setKgTara]    = useState('');
+  const [procesando, setProc]  = useState(false);
+  const [error, setError]      = useState('');
+  const [resultado, setResult] = useState(null);
 
   const tara    = parseInt(kgTara) || 0;
   const kgNetos = tara > 0 && tara < mov.kg_brutos ? mov.kg_brutos - tara : null;
+
+  // Estimación de descuentos si el movimiento tiene datos de calidad
+  const HUMEDAD_BASE = { 'Soja': 13.5, 'Maíz': 14.0, 'Trigo': 11.0, 'Girasol': 9.0 };
+  const humBase  = HUMEDAD_BASE[mov.grano] ?? 13.5;
+  const humReal  = parseFloat(mov.humedad)  || 0;
+  const volReal  = parseFloat(mov.volatil)  || 0;
+  const zarReal  = parseFloat(mov.zaranda)  || 0;
+
+  const descHum  = kgNetos != null && humReal > humBase ? Math.round(kgNetos * (humReal - humBase) / 100) : 0;
+  const descVol  = kgNetos != null && volReal > 0       ? Math.round(kgNetos * volReal / 100)            : 0;
+  const descZar  = kgNetos != null && zarReal > 0       ? Math.round(kgNetos * zarReal / 100)            : 0;
+  const kgLiq    = kgNetos != null ? kgNetos - descHum - descVol - descZar : null;
+  const hayDesc  = descHum > 0 || descVol > 0 || descZar > 0;
 
   async function confirmar() {
     if (!tara || tara <= 0) { setError('Ingresá los kg de tara.'); return; }
@@ -24,14 +37,21 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
     setProc(true);
     setError('');
     try {
-      const res = await fetch(`/api/movimientos/${mov.id}/egreso`, {
-        method: 'PUT',
+      const res  = await fetch(`/api/movimientos/${mov.id}/egreso`, {
+        method:  'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kg_tara: tara }),
+        body:    JSON.stringify({ kg_tara: tara }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setResult({ kg_netos: data.kg_netos, hora_egreso: data.hora_egreso });
+      setResult({
+        kg_netos:            data.kg_netos,
+        kg_liquidable:       data.kg_liquidable,
+        kg_descuento_humedad: data.kg_descuento_humedad,
+        kg_descuento_volatil: data.kg_descuento_volatil,
+        kg_descuento_zaranda: data.kg_descuento_zaranda,
+        hora_egreso:         data.hora_egreso,
+      });
       onEgresado();
     } catch (e) {
       setError(e.message);
@@ -52,9 +72,10 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
     >
       <div style={{
         background: '#fff', borderRadius: 14, padding: 28,
-        width: '100%', maxWidth: 380,
+        width: '100%', maxWidth: 420,
         boxShadow: '0 20px 60px rgba(0,0,0,.4)',
-        display: 'flex', flexDirection: 'column', gap: 18,
+        display: 'flex', flexDirection: 'column', gap: 16,
+        maxHeight: '90vh', overflowY: 'auto',
       }}>
 
         {/* Header */}
@@ -69,7 +90,7 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
 
         {!resultado ? (
           <>
-            {/* Resumen brutos */}
+            {/* Kg brutos */}
             <div style={{ background: 'var(--gris-bg)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
               <span style={{ color: 'var(--texto-suave)' }}>Kg brutos</span>
               <strong>{mov.kg_brutos.toLocaleString('es-AR')} kg</strong>
@@ -85,24 +106,30 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
                 value={kgTara}
                 onChange={e => { setKgTara(e.target.value); setError(''); }}
                 placeholder="Ej: 18500"
-                min={1}
-                max={mov.kg_brutos - 1}
+                min={1} max={mov.kg_brutos - 1}
                 autoFocus
                 style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--gris-borde)', fontSize: 15 }}
               />
             </div>
 
-            {/* Preview kg netos */}
+            {/* Preview liquidación */}
             {kgNetos !== null && (
               <div style={{
-                background: 'var(--verde-claro)', border: '1px solid var(--verde-borde)',
-                borderRadius: 8, padding: '12px 16px',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                background: '#f8f4ff', border: '1px solid #c4b5fd',
+                borderRadius: 8, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 6,
               }}>
-                <span style={{ fontSize: 13, color: 'var(--verde)', fontWeight: 600 }}>Kg netos (calculado)</span>
-                <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--verde)' }}>
-                  {kgNetos.toLocaleString('es-AR')} kg
-                </span>
+                <FilaModal label="Kg brutos"     valor={mov.kg_brutos} />
+                <FilaModal label="Kg tara"        valor={tara} />
+                <FilaModal label="Kg netos"       valor={kgNetos} bold />
+                {hayDesc && <div style={{ borderTop: '1px dashed #c4b5fd', margin: '2px 0' }} />}
+                {descHum > 0 && <FilaModal label={`Desc. humedad (${humReal}% → base ${humBase}%)`} valor={-descHum} negativo />}
+                {descVol > 0 && <FilaModal label={`Desc. volátil (${volReal}%)`}  valor={-descVol} negativo />}
+                {descZar > 0 && <FilaModal label={`Desc. zaranda (${zarReal}%)`}   valor={-descZar} negativo />}
+                <div style={{ borderTop: '2px solid #c4b5fd', margin: '2px 0' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 15, color: '#5b21b6' }}>
+                  <span>Kg liquidable</span>
+                  <span>{kgLiq?.toLocaleString('es-AR')} kg</span>
+                </div>
               </div>
             )}
 
@@ -115,20 +142,12 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
 
             {/* Botones */}
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={procesando}
-                style={{ background: '#f0f2f4', color: '#444', padding: '9px 20px' }}
-              >
+              <button type="button" onClick={onClose} disabled={procesando}
+                style={{ background: '#f0f2f4', color: '#444', padding: '9px 20px' }}>
                 Cancelar
               </button>
-              <button
-                type="button"
-                onClick={confirmar}
-                disabled={procesando || !kgNetos}
-                style={{ background: 'var(--verde)', color: '#fff', padding: '9px 24px' }}
-              >
+              <button type="button" onClick={confirmar} disabled={procesando || !kgNetos}
+                style={{ background: 'var(--verde)', color: '#fff', padding: '9px 24px' }}>
                 {procesando ? 'Guardando…' : '✅ Confirmar egreso'}
               </button>
             </div>
@@ -143,22 +162,25 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
                 {resultado.hora_egreso?.split(' ')[1]?.slice(0, 5) || 'Ahora'}
               </div>
             </div>
+
+            {/* Resumen final */}
             <div style={{
-              background: 'var(--verde-claro)', border: '1px solid var(--verde-borde)',
-              borderRadius: 10, padding: '16px 20px', textAlign: 'center',
+              background: '#f8f4ff', border: '2px solid #c4b5fd',
+              borderRadius: 10, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 6,
             }}>
-              <div style={{ fontSize: 12, color: 'var(--verde)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: .5, marginBottom: 4 }}>
-                Kg netos
-              </div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--verde)' }}>
-                {resultado.kg_netos.toLocaleString('es-AR')} kg
+              <FilaModal label="Kg netos" valor={resultado.kg_netos} bold />
+              {resultado.kg_descuento_humedad > 0 && <FilaModal label="Desc. humedad" valor={-resultado.kg_descuento_humedad} negativo />}
+              {resultado.kg_descuento_volatil > 0 && <FilaModal label="Desc. volátil"  valor={-resultado.kg_descuento_volatil} negativo />}
+              {resultado.kg_descuento_zaranda > 0 && <FilaModal label="Desc. zaranda"  valor={-resultado.kg_descuento_zaranda} negativo />}
+              <div style={{ borderTop: '2px solid #c4b5fd', margin: '4px 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18, color: '#5b21b6' }}>
+                <span>Kg liquidable</span>
+                <span>{resultado.kg_liquidable?.toLocaleString('es-AR')} kg</span>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{ background: 'var(--verde)', color: '#fff', padding: '10px', width: '100%', fontSize: 15 }}
-            >
+
+            <button type="button" onClick={onClose}
+              style={{ background: 'var(--verde)', color: '#fff', padding: '10px', width: '100%', fontSize: 15 }}>
               Cerrar
             </button>
           </>
@@ -221,28 +243,37 @@ export default function Dashboard() {
       {/* ── Tarjetas de resumen ── */}
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(165px, 1fr))', gap: 12 }}>
-          <StatCard label="Total ingresos" value={stats.totales.total_camiones} icon="🚛" color="var(--verde)" />
+          <StatCard label="Total ingresos"     value={stats.totales.total_camiones}  icon="🚛" color="var(--verde)" />
           <StatCard
             label="En planta ahora"
             value={stats.totales.en_planta}
             icon="🏭"
             color={stats.totales.en_planta > 0 ? '#2563eb' : 'var(--texto-suave)'}
           />
-          <StatCard label="Egresados hoy" value={stats.totales.egresados} icon="✅" color="#059669" />
+          <StatCard label="Egresados hoy"      value={stats.totales.egresados}       icon="✅" color="#059669" />
           <StatCard
             label="Kg netos (cerrados)"
             value={(stats.totales.kg_netos_total || 0).toLocaleString('es-AR') + ' kg'}
             icon="⚖️"
             color="#7c3aed"
           />
+          <StatCard
+            label="Kg liquidables"
+            value={(stats.totales.kg_liquidable_total || 0).toLocaleString('es-AR') + ' kg'}
+            icon="💰"
+            color="#b45309"
+            sub="con descuentos calidad"
+          />
           {stats.por_grano.map(g => (
             <StatCard
               key={g.grano}
               label={g.grano}
               value={`${g.camiones} camión${g.camiones !== 1 ? 'es' : ''}`}
-              sub={g.kg_netos_total > 0
-                ? `${g.kg_netos_total.toLocaleString('es-AR')} kg netos`
-                : `${g.kg_brutos_total.toLocaleString('es-AR')} kg brutos`}
+              sub={g.kg_liquidable_total > 0
+                ? `${g.kg_liquidable_total.toLocaleString('es-AR')} kg liq.`
+                : g.kg_netos_total > 0
+                  ? `${g.kg_netos_total.toLocaleString('es-AR')} kg netos`
+                  : `${g.kg_brutos_total.toLocaleString('es-AR')} kg brutos`}
               icon={GRANO_ICON[g.grano] || '🌱'}
               color={GRANO_COLOR[g.grano] || '#888'}
             />
@@ -255,10 +286,9 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>🏭 Camiones en planta</h3>
           {enPlanta.length > 0 && (
-            <span style={{
-              background: '#dbeafe', color: '#1d4ed8',
-              borderRadius: 20, padding: '2px 10px', fontSize: 12, fontWeight: 700,
-            }}>{enPlanta.length}</span>
+            <span style={{ background: '#dbeafe', color: '#1d4ed8', borderRadius: 20, padding: '2px 10px', fontSize: 12, fontWeight: 700 }}>
+              {enPlanta.length}
+            </span>
           )}
         </div>
 
@@ -290,7 +320,7 @@ export default function Dashboard() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: 'var(--gris-bg)', borderBottom: '2px solid var(--gris-borde)' }}>
-                    {['#', 'Ingreso', 'Patente', 'Grano', 'Productor', 'Kg brutos', 'Kg netos', 'Egreso', 'Silo', 'Estado'].map(h => (
+                    {['#', 'Ingreso', 'Patente', 'Grano', 'Productor', 'Kg brutos', 'Kg netos', 'Kg liq.', 'Egreso', 'Silo', 'Estado'].map(h => (
                       <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--texto-suave)', fontSize: 11, textTransform: 'uppercase', letterSpacing: .4, whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
@@ -309,6 +339,11 @@ export default function Dashboard() {
                           ? <strong style={{ color: '#7c3aed' }}>{m.kg_netos.toLocaleString('es-AR')}</strong>
                           : <span style={{ color: 'var(--texto-suave)' }}>—</span>}
                       </td>
+                      <td style={{ ...td, textAlign: 'right' }}>
+                        {m.kg_liquidable != null
+                          ? <strong style={{ color: '#b45309' }}>{m.kg_liquidable.toLocaleString('es-AR')}</strong>
+                          : <span style={{ color: 'var(--texto-suave)' }}>—</span>}
+                      </td>
                       <td style={td}>{hora(m.hora_egreso) || <span style={{ color: 'var(--texto-suave)' }}>—</span>}</td>
                       <td style={td}>{m.silo_destino}</td>
                       <td style={td}>
@@ -321,10 +356,14 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
-            <div style={{ padding: '10px 16px', fontSize: 12, color: 'var(--texto-suave)', borderTop: '1px solid var(--gris-borde)', background: 'var(--gris-bg)', display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ padding: '10px 16px', fontSize: 12, color: 'var(--texto-suave)', borderTop: '1px solid var(--gris-borde)', background: 'var(--gris-bg)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
               <span>{movimientos.length} movimiento{movimientos.length !== 1 ? 's' : ''} hoy</span>
               {egresados.length > 0 && (
-                <span>{egresados.length} egresado{egresados.length !== 1 ? 's' : ''} · {stats?.totales.kg_netos_total?.toLocaleString('es-AR')} kg netos totales</span>
+                <span>
+                  {egresados.length} egresado{egresados.length !== 1 ? 's' : ''} ·{' '}
+                  {stats?.totales.kg_netos_total?.toLocaleString('es-AR')} kg netos ·{' '}
+                  <strong style={{ color: '#b45309' }}>{stats?.totales.kg_liquidable_total?.toLocaleString('es-AR')} kg liq.</strong>
+                </span>
               )}
             </div>
           </div>
@@ -350,44 +389,28 @@ export default function Dashboard() {
 function CardEnPlanta({ mov, onEgreso }) {
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid var(--gris-borde)',
-      borderLeft: '4px solid #2563eb',
-      borderRadius: 10,
-      padding: '16px 18px',
-      boxShadow: 'var(--sombra)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10,
+      background: '#fff', border: '1px solid var(--gris-borde)',
+      borderLeft: '4px solid #2563eb', borderRadius: 10,
+      padding: '16px 18px', boxShadow: 'var(--sombra)',
+      display: 'flex', flexDirection: 'column', gap: 10,
     }}>
-      {/* Patente + grano */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 16, letterSpacing: 1 }}>{mov.patente}</span>
         <GranoBadge grano={mov.grano} />
       </div>
-
-      {/* Productor */}
       <div style={{ fontSize: 13, color: 'var(--texto-suave)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {mov.productor}
       </div>
-
-      {/* Detalles */}
-      <div style={{ display: 'flex', gap: 16, fontSize: 13 }}>
+      {mov.chofer && (
+        <div style={{ fontSize: 12, color: 'var(--texto-suave)' }}>🚗 {mov.chofer}</div>
+      )}
+      <div style={{ display: 'flex', gap: 16, fontSize: 13, flexWrap: 'wrap' }}>
         <InfoLine icon="⏰" label={hora(mov.fecha_ingreso)} />
         <InfoLine icon="📍" label={mov.silo_destino} />
         <InfoLine icon="⚖️" label={mov.kg_brutos.toLocaleString('es-AR') + ' kg'} />
       </div>
-
-      {/* Botón egreso */}
-      <button
-        type="button"
-        onClick={onEgreso}
-        style={{
-          background: 'var(--verde)', color: '#fff',
-          width: '100%', padding: '8px',
-          fontSize: 13, marginTop: 2,
-        }}
-      >
+      <button type="button" onClick={onEgreso}
+        style={{ background: 'var(--verde)', color: '#fff', width: '100%', padding: '8px', fontSize: 13, marginTop: 2 }}>
         Registrar egreso →
       </button>
     </div>
@@ -398,9 +421,8 @@ function StatCard({ label, value, sub, icon, color }) {
   return (
     <div style={{
       background: '#fff', border: '1px solid var(--gris-borde)',
-      borderLeft: `4px solid ${color}`,
-      borderRadius: 10, padding: '14px 16px',
-      boxShadow: 'var(--sombra)',
+      borderLeft: `4px solid ${color}`, borderRadius: 10,
+      padding: '14px 16px', boxShadow: 'var(--sombra)',
     }}>
       <div style={{ fontSize: 20, marginBottom: 5 }}>{icon}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</div>
@@ -411,8 +433,8 @@ function StatCard({ label, value, sub, icon, color }) {
 }
 
 function GranoBadge({ grano }) {
-  const color  = GRANO_COLOR[grano] || '#888';
-  const icon   = GRANO_ICON[grano]  || '🌱';
+  const color = GRANO_COLOR[grano] || '#888';
+  const icon  = GRANO_ICON[grano]  || '🌱';
   return (
     <span style={{
       background: color + '22', color, border: `1px solid ${color}55`,
@@ -439,5 +461,16 @@ function InfoLine({ icon, label }) {
   );
 }
 
+function FilaModal({ label, valor, negativo, bold }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '1px 0' }}>
+      <span style={{ color: negativo ? '#b91c1c' : '#555' }}>{negativo ? '− ' : ''}{label}</span>
+      <span style={{ fontWeight: bold ? 700 : 600, fontFamily: 'monospace', color: negativo ? '#b91c1c' : '#222' }}>
+        {typeof valor === 'number' ? Math.abs(valor).toLocaleString('es-AR') : valor} kg
+      </span>
+    </div>
+  );
+}
+
 const hora = (ts) => ts?.split(' ')[1]?.slice(0, 5) || '';
-const td = { padding: '10px 12px', verticalAlign: 'middle' };
+const td   = { padding: '10px 12px', verticalAlign: 'middle' };

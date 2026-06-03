@@ -20,14 +20,41 @@ db.exec(`
   )
 `);
 
-// Migración: agregar columnas de egreso sin perder datos existentes
+// Migración no-destructiva: agrega columnas faltantes sin perder datos
 // SQLite no soporta ADD COLUMN IF NOT EXISTS → verificamos con PRAGMA
 const colsExistentes = db.prepare('PRAGMA table_info(movimientos)').all().map(c => c.name);
-for (const [col, tipo] of [
-  ['kg_tara',     'INTEGER'],
-  ['kg_netos',    'INTEGER'],
-  ['hora_egreso', 'TEXT'],
-]) {
+
+const columnasMigracion = [
+  // Egreso / pesada
+  ['kg_tara',               'INTEGER'],
+  ['kg_netos',              'INTEGER'],
+  ['hora_egreso',           'TEXT'],
+
+  // Datos de transporte
+  ['empresa_transporte',    'TEXT'],
+  ['chofer',                'TEXT'],
+  ['patente_acoplado',      'TEXT'],
+  ['kilometraje',           'INTEGER'],
+  ['tarifa_flete',          'REAL'],
+  ['moneda_flete',          'TEXT'],
+
+  // Análisis de calidad (porcentajes)
+  ['humedad',               'REAL'],
+  ['granos_danados',        'REAL'],
+  ['granos_picados',        'REAL'],
+  ['impurezas',             'REAL'],
+  ['volatil',               'REAL'],
+  ['zaranda',               'REAL'],
+  ['obs_calidad',           'TEXT'],
+
+  // Liquidación con descuentos de calidad
+  ['kg_descuento_humedad',  'REAL'],
+  ['kg_descuento_volatil',  'REAL'],
+  ['kg_descuento_zaranda',  'REAL'],
+  ['kg_liquidable',         'INTEGER'],
+];
+
+for (const [col, tipo] of columnasMigracion) {
   if (!colsExistentes.includes(col)) {
     db.exec(`ALTER TABLE movimientos ADD COLUMN ${col} ${tipo}`);
   }
