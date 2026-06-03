@@ -50,14 +50,18 @@ router.post('/', (req, res) => {
   const {
     // Campos requeridos
     patente, grano, productor, nro_carta_porte, ctg, kg_brutos, silo_destino,
-    // Transporte (opcionales)
-    empresa_transporte, chofer, patente_acoplado, kilometraje, tarifa_flete, moneda_flete,
+    // Transporte (obligatorios principales)
+    empresa_transporte, chofer, chofer_dni, patente_acoplado, kilometraje, tarifa_flete, moneda_flete,
     // Calidad (opcionales)
     humedad, granos_danados, granos_picados, impurezas, volatil, zaranda, obs_calidad,
   } = req.body;
 
   if (!patente || !grano || !productor || !nro_carta_porte || !ctg || !kg_brutos || !silo_destino) {
-    return res.status(400).json({ error: 'Los campos obligatorios están incompletos.' });
+    return res.status(400).json({ error: 'Los campos obligatorios de la carta de porte están incompletos.' });
+  }
+
+  if (!empresa_transporte || !chofer || !chofer_dni || !patente_acoplado) {
+    return res.status(400).json({ error: 'Los datos del transporte son obligatorios (empresa, chofer, DNI y patente acoplado).' });
   }
 
   const GRANOS_VALIDOS = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
@@ -72,11 +76,11 @@ router.post('/', (req, res) => {
   const result = db.prepare(`
     INSERT INTO movimientos (
       patente, grano, productor, nro_carta_porte, ctg, kg_brutos, silo_destino, estado,
-      empresa_transporte, chofer, patente_acoplado, kilometraje, tarifa_flete, moneda_flete,
+      empresa_transporte, chofer, chofer_dni, patente_acoplado, kilometraje, tarifa_flete, moneda_flete,
       humedad, granos_danados, granos_picados, impurezas, volatil, zaranda, obs_calidad
     ) VALUES (
       ?, ?, ?, ?, ?, ?, ?, 'en_planta',
-      ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?, ?, ?
     )
   `).run(
@@ -88,9 +92,10 @@ router.post('/', (req, res) => {
     parseInt(kg_brutos),
     silo_destino.trim(),
     // transporte
-    empresa_transporte?.trim()   || null,
-    chofer?.trim()               || null,
-    patente_acoplado?.toUpperCase().trim() || null,
+    empresa_transporte.trim(),
+    chofer.trim(),
+    chofer_dni.trim(),
+    patente_acoplado.toUpperCase().trim(),
     kilometraje  ? parseInt(kilometraje)   : null,
     tarifa_flete ? parseFloat(tarifa_flete): null,
     moneda_flete || 'ARS',

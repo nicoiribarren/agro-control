@@ -33,6 +33,7 @@ const columnasMigracion = [
   // Datos de transporte
   ['empresa_transporte',    'TEXT'],
   ['chofer',                'TEXT'],
+  ['chofer_dni',            'TEXT'],
   ['patente_acoplado',      'TEXT'],
   ['kilometraje',           'INTEGER'],
   ['tarifa_flete',          'REAL'],

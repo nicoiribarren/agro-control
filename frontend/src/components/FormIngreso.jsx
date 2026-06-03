@@ -7,7 +7,12 @@ const GRANOS = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
 // Humedad base estándar por grano (espejo del backend)
 const HUMEDAD_BASE = { 'Soja': 13.5, 'Maíz': 14.0, 'Trigo': 11.0, 'Girasol': 9.0 };
 
-const CAMPOS_REQUERIDOS = ['patente', 'ctg', 'grano', 'productor', 'nro_carta_porte', 'kg_brutos', 'silo_destino'];
+const CAMPOS_REQUERIDOS = [
+  // Carta de porte
+  'patente', 'ctg', 'grano', 'productor', 'nro_carta_porte', 'kg_brutos', 'silo_destino',
+  // Transporte
+  'empresa_transporte', 'chofer', 'chofer_dni', 'patente_acoplado',
+];
 
 const vacío = {
   // — Identificación —
@@ -21,6 +26,7 @@ const vacío = {
   // — Transporte —
   empresa_transporte: '',
   chofer: '',
+  chofer_dni: '',
   patente_acoplado: '',
   kilometraje: '',
   tarifa_flete: '',
@@ -238,17 +244,17 @@ export default function FormIngreso({ onRegistrado }) {
         </Seccion>
 
         {/* ══ SECCIÓN: Transporte ══════════════════════════════════════ */}
-        <Seccion titulo="🚛 Datos del Transporte" opcional>
+        <Seccion titulo="🚛 Datos del Transporte">
 
           <div style={fila2}>
-            <Campo label="EMPRESA DE TRANSPORTE">
+            <Campo label="EMPRESA DE TRANSPORTE *">
               <input
                 value={form.empresa_transporte}
                 onChange={e => set('empresa_transporte', e.target.value)}
                 placeholder="Transporte El Campo S.A."
               />
             </Campo>
-            <Campo label="NOMBRE DEL CHOFER">
+            <Campo label="NOMBRE DEL CHOFER *">
               <input
                 value={form.chofer}
                 onChange={e => set('chofer', e.target.value)}
@@ -257,11 +263,17 @@ export default function FormIngreso({ onRegistrado }) {
             </Campo>
           </div>
 
-          <div style={fila3}>
-            <Campo label="PATENTE CAMIÓN *" sub="ya ingresada arriba" readOnly>
-              <input value={form.patente} readOnly style={{ background: '#f5f5f5', color: '#888', letterSpacing: 1, fontFamily: 'monospace', fontWeight: 700 }} />
+          <div style={fila2}>
+            <Campo label="DNI DEL CHOFER *">
+              <input
+                value={form.chofer_dni}
+                onChange={e => set('chofer_dni', e.target.value.replace(/\D/g, ''))}
+                placeholder="30123456"
+                maxLength={9}
+                inputMode="numeric"
+              />
             </Campo>
-            <Campo label="PATENTE ACOPLADO">
+            <Campo label="PATENTE ACOPLADO *">
               <input
                 value={form.patente_acoplado}
                 onChange={e => set('patente_acoplado', e.target.value.toUpperCase())}
@@ -269,6 +281,12 @@ export default function FormIngreso({ onRegistrado }) {
                 maxLength={10}
                 style={{ textTransform: 'uppercase', letterSpacing: 1 }}
               />
+            </Campo>
+          </div>
+
+          <div style={fila2}>
+            <Campo label="PATENTE CAMIÓN" sub="ya ingresada arriba">
+              <input value={form.patente} readOnly style={{ background: '#f5f5f5', color: '#888', letterSpacing: 1, fontFamily: 'monospace', fontWeight: 700 }} />
             </Campo>
             <Campo label="KILOMETRAJE (km)">
               <input
