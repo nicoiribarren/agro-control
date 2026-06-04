@@ -107,7 +107,9 @@ function AppShell() {
                 gap: 1,
               }}
             >
-              <span style={{ fontSize: 13, fontWeight: 600 }}>{usuario.nombre}</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>
+                {usuario.nombre || usuario.email.split('@')[0]}
+              </span>
               <span style={{ fontSize: 10, opacity: .75 }}>
                 {usuario.rol === 'admin' ? '⚙️ Administrador' : '⚖️ Operador'} ▾
               </span>
@@ -123,7 +125,7 @@ function AppShell() {
                 overflow: 'hidden', zIndex: 200,
               }}>
                 <div style={{ padding: '10px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 12, color: '#888' }}>
-                  {usuario.email}
+                  {usuario.email.split('@')[0]}
                 </div>
                 <button
                   onClick={() => { setModalPass(true); setMenuAbierto(false); }}
