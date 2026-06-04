@@ -24,6 +24,12 @@ function AppInner() {
   return <AppShell />;
 }
 
+const TABS = [
+  { key: 'form',      label: '+ Registrar Ingreso',  shortLabel: 'Registrar', icon: '➕', roles: ['admin','operador'] },
+  { key: 'dashboard', label: '📋 Dashboard del Día', shortLabel: 'Dashboard', icon: '📋', roles: ['admin','operador'] },
+  { key: 'reportes',  label: '📊 Reportes',          shortLabel: 'Reportes',  icon: '📊', roles: ['admin'] },
+];
+
 // ── Shell principal de la app (solo si está autenticado) ───────────────────
 function AppShell() {
   const { usuario, logout } = useAuth();
@@ -67,30 +73,28 @@ function AppShell() {
         <img src="/logo.png" alt="JKI Agro" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
         <div>
           <div style={{ fontWeight: 700, fontSize: 17, lineHeight: 1.2 }}>Agro Control</div>
-          <div style={{ fontSize: 11, opacity: .75 }}>Sistema de Ingreso de Camiones</div>
+          <div className="header-brand-sub" style={{ fontSize: 11, opacity: .75 }}>Sistema de Ingreso de Camiones</div>
         </div>
 
-        {/* Tabs de navegación */}
+        {/* Tabs de navegación — solo visibles en desktop */}
         <nav style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
-          {[
-            { key: 'form',      label: '+ Registrar Ingreso', roles: ['admin','operador'] },
-            { key: 'dashboard', label: '📋 Dashboard del Día', roles: ['admin','operador'] },
-            { key: 'reportes',  label: '📊 Reportes', roles: ['admin'] },
-          ].filter(t => t.roles.includes(usuario.rol)).map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              style={{
-                background: tab === t.key ? 'rgba(255,255,255,.25)' : 'transparent',
-                color: '#fff',
-                border: tab === t.key ? '1px solid rgba(255,255,255,.5)' : '1px solid transparent',
-                padding: '7px 16px',
-                fontSize: 13,
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
+          <div className="header-tabs">
+            {TABS.filter(t => t.roles.includes(usuario.rol)).map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                style={{
+                  background: tab === t.key ? 'rgba(255,255,255,.25)' : 'transparent',
+                  color: '#fff',
+                  border: tab === t.key ? '1px solid rgba(255,255,255,.5)' : '1px solid transparent',
+                  padding: '7px 16px',
+                  fontSize: 13,
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
 
           {/* Menú de usuario */}
           <div ref={menuRef} style={{ position: 'relative', marginLeft: 12, paddingLeft: 16, borderLeft: '1px solid rgba(255,255,255,.25)' }}>
@@ -109,7 +113,7 @@ function AppShell() {
                 gap: 1,
               }}
             >
-              <span style={{ fontSize: 13, fontWeight: 600 }}>
+              <span className="header-user-name" style={{ fontSize: 13, fontWeight: 600 }}>
                 {usuario.nombre || usuario.email.split('@')[0]}
               </span>
               <span style={{ fontSize: 10, opacity: .75 }}>
@@ -155,11 +159,32 @@ function AppShell() {
       {modalPass && <ModalCambiarPassword onClose={() => setModalPass(false)} />}
 
       {/* ── Contenido principal ────────────────────────────────────────── */}
-      <main style={{ flex: 1, padding: '28px 24px', maxWidth: tab === 'reportes' ? 1200 : 960, margin: '0 auto', width: '100%' }}>
+      <main className="main-content" style={{ flex: 1, padding: '28px 24px', maxWidth: tab === 'reportes' ? 1200 : 960, margin: '0 auto', width: '100%' }}>
         {tab === 'form'      && <FormIngreso onRegistrado={handleRegistrado} />}
         {tab === 'dashboard' && <Dashboard key={refreshKey} />}
         {tab === 'reportes'  && <Reportes />}
       </main>
+
+      {/* ── Bottom nav (solo mobile) ───────────────────────────────── */}
+      <nav className="bottom-nav">
+        {TABS.filter(t => t.roles.includes(usuario.rol)).map(t => (
+          <button
+            key={t.key}
+            className={`bottom-nav-btn${tab === t.key ? ' activo' : ''}`}
+            onClick={() => setTab(t.key)}
+          >
+            <span className="bnav-icon">{t.icon}</span>
+            {t.shortLabel}
+          </button>
+        ))}
+        <button
+          className="bottom-nav-btn"
+          onClick={() => setMenuAbierto(v => !v)}
+        >
+          <span className="bnav-icon">👤</span>
+          Cuenta
+        </button>
+      </nav>
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer style={{
