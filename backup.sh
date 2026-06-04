@@ -14,10 +14,8 @@ set -euo pipefail
 # ── Cargar variables de entorno desde .env ────────────────────────────────────
 APP_DIR="/var/www/agro-control"
 if [[ -f "$APP_DIR/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1090
-  source "$APP_DIR/.env"
-  set +a
+  # shellcheck disable=SC2046
+  export $(grep -v '^#' "$APP_DIR/.env" | grep -v '^$' | xargs)
 fi
 DB_PATH="$APP_DIR/backend/agro.db"
 BACKUP_DIR="/var/backups/agro-control"
