@@ -29,6 +29,12 @@ SUPABASE_URL="${SUPABASE_URL:-}"
 SUPABASE_SERVICE_KEY="${SUPABASE_SERVICE_KEY:-}"
 SUPABASE_BUCKET="agro-backups"
 
+# ── Monitoreo healthchecks.io ─────────────────────────────────────────────────
+HC_URL="https://hc-ping.com/dfd1bba5-ce50-4e24-b81a-870f09afd5f8"
+
+# Si el script termina con error → ping /fail → email de alerta automático
+trap 'curl -fsS --retry 3 "$HC_URL/fail" > /dev/null 2>&1' ERR
+
 # ── Colores para log ──────────────────────────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 info()  { echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${GREEN}[OK]${NC}    $*"; }
@@ -39,6 +45,9 @@ echo ""
 echo "════════════════════════════════════════════════"
 echo "  Agro Control — Backup $FECHA $HORA"
 echo "════════════════════════════════════════════════"
+
+# Ping de inicio (healthchecks sabe que el job arrancó)
+curl -fsS --retry 3 "$HC_URL/start" > /dev/null 2>&1 || true
 
 # ── 1. Verificar que existe la base de datos ──────────────────────────────────
 if [[ ! -f "$DB_PATH" ]]; then
@@ -129,3 +138,6 @@ info "Archivo: $BACKUP_FILE ($TAMANIO)"
 info "Local:   $BACKUP_DIR/"
 [[ -n "$SUPABASE_URL" ]] && info "Remoto:  Supabase Storage / $SUPABASE_BUCKET"
 echo ""
+
+# Ping de éxito → healthchecks marca el check como OK
+curl -fsS --retry 3 "$HC_URL" > /dev/null 2>&1 || true
