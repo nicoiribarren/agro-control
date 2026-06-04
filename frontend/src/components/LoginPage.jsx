@@ -60,10 +60,10 @@ export default function LoginPage() {
         }}>
           {['J','K','I'].map(letra => (
             <span key={letra} style={{
-              fontSize: 'clamp(160px, 28vw, 380px)',
+              fontSize: 'clamp(220px, 38vw, 520px)',
               fontWeight: 900,
-              color: 'rgba(0,0,0,0.1)',
-              filter: 'blur(4px)',
+              color: 'rgba(0,0,0,0.18)',
+              filter: 'blur(3px)',
               lineHeight: 1,
               letterSpacing: 0,
             }}>{letra}</span>
