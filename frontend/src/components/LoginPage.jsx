@@ -26,14 +26,26 @@ export default function LoginPage() {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1a4d23 0%, #2d7a3a 60%, #3a9e4a 100%)',
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       padding: 16,
+      gap: 24,
     }}>
+
+      {/* Logo sobre el fondo verde */}
+      <div style={{ textAlign: 'center' }}>
+        <img
+          src="/logo.png"
+          alt="JKI Agro"
+          style={{ height: 72, width: 'auto', objectFit: 'contain' }}
+        />
+      </div>
+
       <div style={{
         background: '#fff',
         borderRadius: 16,
-        padding: '40px 36px',
+        padding: '36px 36px',
         width: '100%',
         maxWidth: 380,
         boxShadow: '0 24px 64px rgba(0,0,0,.35)',
@@ -42,13 +54,8 @@ export default function LoginPage() {
         gap: 24,
       }}>
 
-        {/* Logo + título */}
+        {/* Título dentro de la tarjeta */}
         <div style={{ textAlign: 'center' }}>
-          <img
-            src="/logo.png"
-            alt="JKI Agro"
-            style={{ height: 56, width: 'auto', objectFit: 'contain', marginBottom: 12 }}
-          />
           <div style={{ fontWeight: 800, fontSize: 20, color: '#1a4d23' }}>Agro Control</div>
           <div style={{ fontSize: 13, color: 'var(--texto-suave)', marginTop: 2 }}>
             Sistema de Ingreso de Camiones
@@ -120,6 +127,7 @@ export default function LoginPage() {
           JKI Agro · Sistema interno
         </div>
       </div>
+
     </div>
   );
 }
