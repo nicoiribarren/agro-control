@@ -187,7 +187,7 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
             <div style={{ display: 'flex', gap: 10 }}>
               <button type="button" onClick={() => setVerTicket(true)}
                 style={{ flex: 1, background: '#1a4d23', color: '#fff', padding: '10px', fontSize: 14, fontWeight: 700 }}>
-                🎫 Ver ticket
+                🖨️ Imprimir remito
               </button>
               <button type="button" onClick={onClose}
                 style={{ flex: 1, background: 'var(--verde)', color: '#fff', padding: '10px', fontSize: 14 }}>
@@ -372,10 +372,9 @@ export default function Dashboard() {
                         {m.estado === 'egresado' && (
                           <button
                             onClick={() => setTicketMov(m)}
-                            title="Ver ticket"
-                            style={{ background: '#1a4d23', color: '#fff', padding: '4px 10px', fontSize: 12, borderRadius: 6 }}
+                            style={{ background: '#1a4d23', color: '#fff', padding: '5px 12px', fontSize: 12, borderRadius: 6, whiteSpace: 'nowrap' }}
                           >
-                            🎫
+                            🖨️ Imprimir remito
                           </button>
                         )}
                       </td>

@@ -251,10 +251,9 @@ export default function Reportes() {
                           {m.estado === 'egresado' && (
                             <button
                               onClick={() => setTicketMov(m)}
-                              title="Ver ticket"
-                              style={{ background: '#1a4d23', color: '#fff', padding: '4px 10px', fontSize: 12, borderRadius: 6 }}
+                              style={{ background: '#1a4d23', color: '#fff', padding: '5px 12px', fontSize: 12, borderRadius: 6, whiteSpace: 'nowrap' }}
                             >
-                              🎫
+                              🖨️ Imprimir remito
                             </button>
                           )}
                         </td>
