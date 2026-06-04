@@ -1,18 +1,22 @@
 const express = require('express');
-const cors = require('cors');
-const path = require('path');
+const cors    = require('cors');
+const path    = require('path');
+const { requireAuth } = require('./middleware/authMiddleware');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/ctg', require('./routes/ctg'));
-app.use('/api/movimientos', require('./routes/movimientos'));
-
+// ── Rutas públicas ────────────────────────────────────────────────────────
+app.use('/api/auth', require('./routes/auth'));
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// En producción, Express sirve el build de React como SPA
+// ── Rutas protegidas (requieren JWT válido) ───────────────────────────────
+app.use('/api/ctg',          requireAuth, require('./routes/ctg'));
+app.use('/api/movimientos',  requireAuth, require('./routes/movimientos'));
+
+// ── En producción, Express sirve el build de React como SPA ──────────────
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(__dirname, '../frontend/dist');
   app.use(express.static(distPath));

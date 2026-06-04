@@ -1,5 +1,6 @@
 const Database = require('better-sqlite3');
-const path = require('path');
+const bcrypt    = require('bcryptjs');
+const path      = require('path');
 
 const db = new Database(path.join(__dirname, 'agro.db'));
 
@@ -63,5 +64,29 @@ for (const [col, tipo] of columnasMigracion) {
 
 // Normalizar estado legado: 'ingresado' → 'en_planta'
 db.exec(`UPDATE movimientos SET estado = 'en_planta' WHERE estado = 'ingresado'`);
+
+// ── Tabla de usuarios ──────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS usuarios (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre         TEXT    NOT NULL,
+    email          TEXT    NOT NULL UNIQUE,
+    password_hash  TEXT    NOT NULL,
+    rol            TEXT    NOT NULL DEFAULT 'operador',  -- 'admin' | 'operador'
+    activo         INTEGER NOT NULL DEFAULT 1,
+    created_at     TEXT    DEFAULT (datetime('now', 'localtime'))
+  )
+`);
+
+// Seed: crear admin por defecto si no hay ningún usuario
+const totalUsuarios = db.prepare('SELECT COUNT(*) as n FROM usuarios').get().n;
+if (totalUsuarios === 0) {
+  const hash = bcrypt.hashSync('Admin123!', 10);
+  db.prepare(`
+    INSERT INTO usuarios (nombre, email, password_hash, rol)
+    VALUES (?, ?, ?, 'admin')
+  `).run('Administrador', 'admin@jkiagro.com', hash);
+  console.log('👤 Usuario admin creado: admin@jkiagro.com / Admin123!');
+}
 
 module.exports = db;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import QrScanner from './QrScanner.jsx';
+import { apiFetch } from '../api.js';
 
 const SILOS  = ['Silo 1', 'Silo 2', 'Silo 3', 'Silo 4', 'Silo 5', 'Celda A', 'Celda B', 'Planta'];
 const GRANOS = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
@@ -65,7 +66,7 @@ export default function FormIngreso({ onRegistrado }) {
     setError('');
     setCtgData(null);
     try {
-      const res  = await fetch(`/api/ctg/${codigo}`);
+      const res  = await apiFetch(`/api/ctg/${codigo}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setCtgData(data);
@@ -108,10 +109,9 @@ export default function FormIngreso({ onRegistrado }) {
         kilometraje: form.kilometraje ? Number(form.kilometraje) : undefined,
         tarifa_flete: form.tarifa_flete ? Number(form.tarifa_flete) : undefined,
       };
-      const res  = await fetch('/api/movimientos', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
+      const res  = await apiFetch('/api/movimientos', {
+        method: 'POST',
+        body:   JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);

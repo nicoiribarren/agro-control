@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '../api.js';
 
 const GRANO_COLOR = { Soja: '#f0a500', Maíz: '#e8c840', Trigo: '#c8a050', Girasol: '#e06820' };
 const GRANO_ICON  = { Soja: '🫘', Maíz: '🌽', Trigo: '🌾', Girasol: '🌻' };
@@ -37,10 +38,9 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
     setProc(true);
     setError('');
     try {
-      const res  = await fetch(`/api/movimientos/${mov.id}/egreso`, {
-        method:  'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ kg_tara: tara }),
+      const res  = await apiFetch(`/api/movimientos/${mov.id}/egreso`, {
+        method: 'PUT',
+        body:   JSON.stringify({ kg_tara: tara }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -206,8 +206,8 @@ export default function Dashboard() {
     setError('');
     try {
       const [resM, resS] = await Promise.all([
-        fetch('/api/movimientos'),
-        fetch('/api/movimientos/stats'),
+        apiFetch('/api/movimientos'),
+        apiFetch('/api/movimientos/stats'),
       ]);
       if (!resM.ok || !resS.ok) throw new Error('Error al cargar datos');
       setMovimientos(await resM.json());
