@@ -107,3 +107,26 @@ input:focus, select:focus { border-color: var(--verde); box-shadow: 0 0 0 3px rg
 input:read-only { background: #f0f2f4; color: var(--texto-suave); }
 
 label { font-size: 13px; font-weight: 600; color: var(--texto-suave); display: block; margin-bottom: 5px; }
+
+/* ── CSS de impresión — solo muestra el ticket ── */
+@media print {
+  body > * { display: none !important; }
+
+  .ticket-overlay {
+    display: block !important;
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .ticket-acciones { display: none !important; }
+
+  .ticket-imprimible {
+    display: block !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    padding: 10px !important;
+  }
+}

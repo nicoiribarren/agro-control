@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import { apiFetch } from '../api.js';
+import ModalTicket from './ModalTicket.jsx';
 
 const GRANOS  = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
 const GRANO_COLOR = { Soja: '#f0a500', Maíz: '#e8c840', Trigo: '#c8a050', Girasol: '#e06820' };
@@ -28,6 +29,7 @@ export default function Reportes() {
   const [resultado,  setResultado]  = useState(null);
   const [cargando,   setCargando]   = useState(false);
   const [error,      setError]      = useState('');
+  const [ticketMov,  setTicketMov]  = useState(null);
 
   function setF(k, v) { setFiltros(f => ({ ...f, [k]: v })); }
 
@@ -213,7 +215,7 @@ export default function Reportes() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
                     <tr style={{ background: 'var(--gris-bg)', borderBottom: '2px solid var(--gris-borde)' }}>
-                      {['Fecha', 'Patente', 'Grano', 'Productor', 'Empresa transp.', 'Chofer', 'Silo', 'Kg brutos', 'Kg netos', 'Kg liq.', 'Egreso', 'Estado'].map(h => (
+                      {['Fecha', 'Patente', 'Grano', 'Productor', 'Empresa transp.', 'Chofer', 'Silo', 'Kg brutos', 'Kg netos', 'Kg liq.', 'Egreso', 'Estado', ''].map(h => (
                         <th key={h} style={{ padding: '9px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--texto-suave)', fontSize: 10, textTransform: 'uppercase', letterSpacing: .4, whiteSpace: 'nowrap' }}>{h}</th>
                       ))}
                     </tr>
@@ -245,6 +247,17 @@ export default function Reportes() {
                             ? <Badge label="Egresado" bg="#d1fae5" color="#065f46" border="#6ee7b7" />
                             : <Badge label="En planta" bg="#dbeafe" color="#1e40af" border="#93c5fd" />}
                         </td>
+                        <td style={td}>
+                          {m.estado === 'egresado' && (
+                            <button
+                              onClick={() => setTicketMov(m)}
+                              title="Ver ticket"
+                              style={{ background: '#1a4d23', color: '#fff', padding: '4px 10px', fontSize: 12, borderRadius: 6 }}
+                            >
+                              🎫
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -264,6 +277,8 @@ export default function Reportes() {
           </div>
         </>
       )}
+
+      {ticketMov && <ModalTicket mov={ticketMov} onClose={() => setTicketMov(null)} />}
     </div>
   );
 }

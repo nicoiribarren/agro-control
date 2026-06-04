@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../api.js';
+import ModalTicket from './ModalTicket.jsx';
 
 const GRANO_COLOR = { Soja: '#f0a500', Maíz: '#e8c840', Trigo: '#c8a050', Girasol: '#e06820' };
 const GRANO_ICON  = { Soja: '🫘', Maíz: '🌽', Trigo: '🌾', Girasol: '🌻' };
@@ -8,10 +9,12 @@ const GRANO_ICON  = { Soja: '🫘', Maíz: '🌽', Trigo: '🌾', Girasol: '🌻
 // Modal de egreso
 // ─────────────────────────────────────────────
 function ModalEgreso({ mov, onClose, onEgresado }) {
-  const [kgTara, setKgTara]    = useState('');
-  const [procesando, setProc]  = useState(false);
-  const [error, setError]      = useState('');
-  const [resultado, setResult] = useState(null);
+  const [kgTara, setKgTara]      = useState('');
+  const [procesando, setProc]    = useState(false);
+  const [error, setError]        = useState('');
+  const [resultado, setResult]   = useState(null);
+  const [movFinal, setMovFinal]  = useState(null);
+  const [verTicket, setVerTicket] = useState(false);
 
   const tara    = parseInt(kgTara) || 0;
   const kgNetos = tara > 0 && tara < mov.kg_brutos ? mov.kg_brutos - tara : null;
@@ -52,6 +55,7 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
         kg_descuento_zaranda: data.kg_descuento_zaranda,
         hora_egreso:         data.hora_egreso,
       });
+      setMovFinal(data);
       onEgresado();
     } catch (e) {
       setError(e.message);
@@ -61,6 +65,7 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
   }
 
   return (
+    <>
     <div
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
@@ -179,15 +184,26 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
               </div>
             </div>
 
-            <button type="button" onClick={onClose}
-              style={{ background: 'var(--verde)', color: '#fff', padding: '10px', width: '100%', fontSize: 15 }}>
-              Cerrar
-            </button>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button type="button" onClick={() => setVerTicket(true)}
+                style={{ flex: 1, background: '#1a4d23', color: '#fff', padding: '10px', fontSize: 14, fontWeight: 700 }}>
+                🎫 Ver ticket
+              </button>
+              <button type="button" onClick={onClose}
+                style={{ flex: 1, background: 'var(--verde)', color: '#fff', padding: '10px', fontSize: 14 }}>
+                Cerrar
+              </button>
+            </div>
           </>
         )}
 
       </div>
     </div>
+
+    {verTicket && movFinal && (
+      <ModalTicket mov={movFinal} onClose={() => setVerTicket(false)} />
+    )}
+    </>
   );
 }
 
@@ -200,6 +216,7 @@ export default function Dashboard() {
   const [cargando, setCargando]       = useState(true);
   const [error, setError]             = useState('');
   const [egresoMov, setEgresoMov]     = useState(null);
+  const [ticketMov, setTicketMov]     = useState(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -320,7 +337,7 @@ export default function Dashboard() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: 'var(--gris-bg)', borderBottom: '2px solid var(--gris-borde)' }}>
-                    {['#', 'Ingreso', 'Patente', 'Grano', 'Productor', 'Kg brutos', 'Kg netos', 'Kg liq.', 'Egreso', 'Silo', 'Estado'].map(h => (
+                    {['#', 'Ingreso', 'Patente', 'Grano', 'Productor', 'Kg brutos', 'Kg netos', 'Kg liq.', 'Egreso', 'Silo', 'Estado', ''].map(h => (
                       <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--texto-suave)', fontSize: 11, textTransform: 'uppercase', letterSpacing: .4, whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
@@ -351,6 +368,17 @@ export default function Dashboard() {
                           ? <Badge label="Egresado" bg="#d1fae5" color="#065f46" border="#6ee7b7" />
                           : <Badge label="En planta" bg="#dbeafe" color="#1e40af" border="#93c5fd" />}
                       </td>
+                      <td style={td}>
+                        {m.estado === 'egresado' && (
+                          <button
+                            onClick={() => setTicketMov(m)}
+                            title="Ver ticket"
+                            style={{ background: '#1a4d23', color: '#fff', padding: '4px 10px', fontSize: 12, borderRadius: 6 }}
+                          >
+                            🎫
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -377,6 +405,11 @@ export default function Dashboard() {
           onClose={() => setEgresoMov(null)}
           onEgresado={cargar}
         />
+      )}
+
+      {/* ── Modal de ticket ── */}
+      {ticketMov && (
+        <ModalTicket mov={ticketMov} onClose={() => setTicketMov(null)} />
       )}
 
     </div>
