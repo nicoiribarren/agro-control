@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import LoginPage    from './components/LoginPage.jsx';
 import FormIngreso  from './components/FormIngreso.jsx';
 import Dashboard    from './components/Dashboard.jsx';
+import Reportes     from './components/Reportes.jsx';
 import { apiFetch } from './api.js';
 
 // ── Wrapper que decide si mostrar login o la app ───────────────────────────
@@ -72,9 +73,10 @@ function AppShell() {
         {/* Tabs de navegación */}
         <nav style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
           {[
-            { key: 'form',      label: '+ Registrar Ingreso' },
-            { key: 'dashboard', label: '📋 Dashboard del Día' },
-          ].map(t => (
+            { key: 'form',      label: '+ Registrar Ingreso', roles: ['admin','operador'] },
+            { key: 'dashboard', label: '📋 Dashboard del Día', roles: ['admin','operador'] },
+            { key: 'reportes',  label: '📊 Reportes', roles: ['admin'] },
+          ].filter(t => t.roles.includes(usuario.rol)).map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
@@ -153,11 +155,10 @@ function AppShell() {
       {modalPass && <ModalCambiarPassword onClose={() => setModalPass(false)} />}
 
       {/* ── Contenido principal ────────────────────────────────────────── */}
-      <main style={{ flex: 1, padding: '28px 24px', maxWidth: 960, margin: '0 auto', width: '100%' }}>
-        {tab === 'form'
-          ? <FormIngreso onRegistrado={handleRegistrado} />
-          : <Dashboard key={refreshKey} />
-        }
+      <main style={{ flex: 1, padding: '28px 24px', maxWidth: tab === 'reportes' ? 1200 : 960, margin: '0 auto', width: '100%' }}>
+        {tab === 'form'      && <FormIngreso onRegistrado={handleRegistrado} />}
+        {tab === 'dashboard' && <Dashboard key={refreshKey} />}
+        {tab === 'reportes'  && <Reportes />}
       </main>
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}

@@ -171,4 +171,38 @@ router.put('/:id/egreso', (req, res) => {
   res.json(actualizado);
 });
 
+// GET /api/movimientos/historico — reportes con filtros (solo admin)
+router.get('/historico', (req, res) => {
+  const { fecha_desde, fecha_hasta, grano, estado, productor } = req.query;
+
+  const hoy = new Date().toISOString().split('T')[0];
+  const desde = fecha_desde || hoy;
+  const hasta  = fecha_hasta || hoy;
+
+  let where = `date(fecha_ingreso) BETWEEN ? AND ?`;
+  const params = [desde, hasta];
+
+  if (grano)    { where += ` AND grano = ?`;           params.push(grano); }
+  if (estado)   { where += ` AND estado = ?`;          params.push(estado); }
+  if (productor){ where += ` AND productor LIKE ?`;    params.push(`%${productor}%`); }
+
+  const rows = db.prepare(`
+    SELECT * FROM movimientos
+    WHERE ${where}
+    ORDER BY fecha_ingreso DESC
+  `).all(...params);
+
+  // Totales del conjunto filtrado
+  const totales = {
+    total_camiones:      rows.length,
+    kg_brutos_total:     rows.reduce((s, r) => s + (r.kg_brutos  || 0), 0),
+    kg_netos_total:      rows.reduce((s, r) => s + (r.kg_netos    || 0), 0),
+    kg_liquidable_total: rows.reduce((s, r) => s + (r.kg_liquidable || 0), 0),
+    egresados:           rows.filter(r => r.estado === 'egresado').length,
+    en_planta:           rows.filter(r => r.estado === 'en_planta').length,
+  };
+
+  res.json({ movimientos: rows, totales });
+});
+
 module.exports = router;
