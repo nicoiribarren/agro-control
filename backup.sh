@@ -81,6 +81,7 @@ if [[ -n "$SUPABASE_URL" && -n "$SUPABASE_SERVICE_KEY" ]]; then
     "$SUPABASE_URL/storage/v1/object/$SUPABASE_BUCKET/$BACKUP_FILE" \
     -H "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
     -H "Content-Type: application/octet-stream" \
+    -H "x-upsert: true" \
     --data-binary "@$BACKUP_DIR/$BACKUP_FILE")
 
   if [[ "$HTTP_STATUS" == "200" || "$HTTP_STATUS" == "201" ]]; then
