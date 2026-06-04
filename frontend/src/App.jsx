@@ -4,6 +4,7 @@ import LoginPage    from './components/LoginPage.jsx';
 import FormIngreso  from './components/FormIngreso.jsx';
 import Dashboard    from './components/Dashboard.jsx';
 import Reportes     from './components/Reportes.jsx';
+import Usuarios     from './components/Usuarios.jsx';
 import { apiFetch } from './api.js';
 
 // ── Wrapper que decide si mostrar login o la app ───────────────────────────
@@ -28,6 +29,7 @@ const TABS = [
   { key: 'form',      label: '+ Registrar Ingreso',  shortLabel: 'Registrar', icon: '➕', roles: ['admin','operador'] },
   { key: 'dashboard', label: '📋 Dashboard del Día', shortLabel: 'Dashboard', icon: '📋', roles: ['admin','operador'] },
   { key: 'reportes',  label: '📊 Reportes',          shortLabel: 'Reportes',  icon: '📊', roles: ['admin'] },
+  { key: 'usuarios',  label: '👥 Usuarios',           shortLabel: 'Usuarios',  icon: '👥', roles: ['admin'] },
 ];
 
 // ── Shell principal de la app (solo si está autenticado) ───────────────────
@@ -163,6 +165,7 @@ function AppShell() {
         {tab === 'form'      && <FormIngreso onRegistrado={handleRegistrado} />}
         {tab === 'dashboard' && <Dashboard key={refreshKey} />}
         {tab === 'reportes'  && <Reportes />}
+        {tab === 'usuarios'  && <Usuarios />}
       </main>
 
       {/* ── Bottom nav (solo mobile) ───────────────────────────────── */}
