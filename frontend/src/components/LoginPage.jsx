@@ -60,14 +60,14 @@ export default function LoginPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--texto-suave)', letterSpacing: .4 }}>
-              EMAIL
+              USUARIO
             </label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={e => { setEmail(e.target.value); setError(''); }}
-              placeholder="tu@email.com"
-              autoComplete="email"
+              placeholder="usuario@jkiagro.com"
+              autoComplete="username"
               autoFocus
               required
               style={{ fontSize: 15, padding: '10px 14px' }}

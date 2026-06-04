@@ -35,6 +35,27 @@ router.get('/me', requireAuth, (req, res) => {
   res.json({ usuario: req.usuario });
 });
 
+// PUT /api/auth/cambiar-password — cualquier usuario cambia su propia contraseña
+router.put('/cambiar-password', requireAuth, (req, res) => {
+  const { password_actual, password_nuevo } = req.body;
+
+  if (!password_actual || !password_nuevo) {
+    return res.status(400).json({ error: 'Completá todos los campos.' });
+  }
+  if (password_nuevo.length < 6) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 6 caracteres.' });
+  }
+
+  const usuario = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(req.usuario.id);
+  if (!bcrypt.compareSync(password_actual, usuario.password_hash)) {
+    return res.status(401).json({ error: 'La contraseña actual es incorrecta.' });
+  }
+
+  const nuevoHash = bcrypt.hashSync(password_nuevo, 10);
+  db.prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?').run(nuevoHash, req.usuario.id);
+  res.json({ ok: true });
+});
+
 // ── Gestión de usuarios (solo admin) ──────────────────────────────────────
 
 // GET /api/auth/usuarios
