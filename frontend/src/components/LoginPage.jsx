@@ -47,7 +47,34 @@ export default function LoginPage() {
         justifyContent: 'center',
         padding: 16,
         gap: 28,
+        position: 'relative',
+        overflow: 'hidden',
       }}>
+
+        {/* Letras JKI decorativas en el fondo */}
+        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, userSelect: 'none' }}>
+          <span style={{
+            position: 'absolute', top: '-4%', left: '-8%',
+            fontSize: 'clamp(180px, 35vw, 340px)', fontWeight: 900,
+            color: 'rgba(0,0,0,0.18)', filter: 'blur(6px)',
+            lineHeight: 1,
+          }}>J</span>
+          <span style={{
+            position: 'absolute', top: '30%', right: '-8%',
+            fontSize: 'clamp(160px, 32vw, 300px)', fontWeight: 900,
+            color: 'rgba(0,0,0,0.13)', filter: 'blur(9px)',
+            lineHeight: 1,
+          }}>K</span>
+          <span style={{
+            position: 'absolute', bottom: '-6%', left: '32%',
+            fontSize: 'clamp(140px, 28vw, 280px)', fontWeight: 900,
+            color: 'rgba(0,0,0,0.15)', filter: 'blur(5px)',
+            lineHeight: 1,
+          }}>I</span>
+        </div>
+
+        {/* Contenido encima del fondo (z-index: 1) */}
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28, width: '100%', maxWidth: 480 }}>
 
         {/* Logo animado sobre el fondo verde */}
         <img
@@ -148,6 +175,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+        </div>{/* cierre contenido z-index:1 */}
       </div>
     </>
   );
