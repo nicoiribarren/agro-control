@@ -467,13 +467,12 @@ function StatCard({ label, value, sub, Icon, color }) {
 
 function GranoBadge({ grano }) {
   const color = GRANO_COLOR[grano] || '#888';
-  const icon  = GRANO_ICON[grano]  || '🌱';
   return (
     <span style={{
       background: color + '22', color, border: `1px solid ${color}55`,
       borderRadius: 20, padding: '2px 10px', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap',
     }}>
-      {icon} {grano}
+      {grano}
     </span>
   );
 }
