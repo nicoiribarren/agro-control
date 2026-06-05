@@ -51,7 +51,11 @@ router.post('/', (req, res) => {
     // Campos requeridos
     patente, grano, productor, nro_carta_porte, ctg, kg_brutos, silo_destino,
     // Transporte (obligatorios principales)
-    empresa_transporte, chofer, chofer_dni, patente_acoplado, kilometraje, tarifa_flete, moneda_flete,
+    empresa_transporte, chofer, chofer_dni, patente_acoplado, kilometraje, tarifa_flete, moneda_flete, tarifa_facturacion,
+    // Procedencia y destino
+    localidad_procedencia, localidad_destino,
+    // Tipo de movimiento
+    tipo_movimiento,
     // Calidad (opcionales)
     humedad, granos_danados, granos_picados, impurezas, volatil, zaranda, obs_calidad,
   } = req.body;
@@ -62,6 +66,10 @@ router.post('/', (req, res) => {
 
   if (!empresa_transporte || !chofer || !chofer_dni || !patente_acoplado) {
     return res.status(400).json({ error: 'Los datos del transporte son obligatorios (empresa, chofer, DNI y patente acoplado).' });
+  }
+
+  if (!tipo_movimiento) {
+    return res.status(400).json({ error: 'El tipo de movimiento es obligatorio.' });
   }
 
   const GRANOS_VALIDOS = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
@@ -76,11 +84,13 @@ router.post('/', (req, res) => {
   const result = db.prepare(`
     INSERT INTO movimientos (
       patente, grano, productor, nro_carta_porte, ctg, kg_brutos, silo_destino, estado,
-      empresa_transporte, chofer, chofer_dni, patente_acoplado, kilometraje, tarifa_flete, moneda_flete,
+      tipo_movimiento, localidad_procedencia, localidad_destino,
+      empresa_transporte, chofer, chofer_dni, patente_acoplado, kilometraje, tarifa_flete, moneda_flete, tarifa_facturacion,
       humedad, granos_danados, granos_picados, impurezas, volatil, zaranda, obs_calidad
     ) VALUES (
       ?, ?, ?, ?, ?, ?, ?, 'en_planta',
-      ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?, ?, ?
     )
   `).run(
@@ -91,14 +101,19 @@ router.post('/', (req, res) => {
     ctg.trim(),
     parseInt(kg_brutos),
     silo_destino.trim(),
+    // tipo y procedencia/destino
+    tipo_movimiento.trim(),
+    localidad_procedencia?.trim() || null,
+    localidad_destino?.trim()     || null,
     // transporte
     empresa_transporte.trim(),
     chofer.trim(),
     chofer_dni.trim(),
     patente_acoplado.toUpperCase().trim(),
-    kilometraje  ? parseInt(kilometraje)   : null,
-    tarifa_flete ? parseFloat(tarifa_flete): null,
-    moneda_flete || 'ARS',
+    kilometraje        ? parseInt(kilometraje)        : null,
+    tarifa_flete       ? parseFloat(tarifa_flete)     : null,
+    moneda_flete       || 'ARS',
+    tarifa_facturacion ? parseFloat(tarifa_facturacion): null,
     // calidad
     humedad       != null && humedad      !== '' ? parseFloat(humedad)       : null,
     granos_danados!= null && granos_danados!==''  ? parseFloat(granos_danados): null,

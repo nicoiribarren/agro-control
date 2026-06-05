@@ -54,6 +54,16 @@ const columnasMigracion = [
   ['kg_descuento_volatil',  'REAL'],
   ['kg_descuento_zaranda',  'REAL'],
   ['kg_liquidable',         'INTEGER'],
+
+  // Tipo de movimiento
+  ['tipo_movimiento',       'TEXT'],
+
+  // Procedencia y destino (de la carta de porte)
+  ['localidad_procedencia', 'TEXT'],
+  ['localidad_destino',     'TEXT'],
+
+  // Tarifa de facturación (separada de la tarifa de referencia/flete)
+  ['tarifa_facturacion',    'REAL'],
 ];
 
 for (const [col, tipo] of columnasMigracion) {

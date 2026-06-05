@@ -68,7 +68,10 @@ export default function ModalTicket({ mov, onClose }) {
               {mov.chofer_dni && <Fila label="DNI"  valor={formatDNI(mov.chofer_dni)} />}
               {mov.kilometraje && <Fila label="Kilometraje" valor={`${Number(mov.kilometraje).toLocaleString('es-AR')} km`} />}
               {mov.tarifa_flete && (
-                <Fila label="Tarifa flete" valor={`${mov.moneda_flete === 'USD' ? 'U$S' : '$'} ${Number(mov.tarifa_flete).toLocaleString('es-AR')}`} />
+                <Fila label="Tarifa referencia" valor={`${mov.moneda_flete === 'USD' ? 'U$S' : '$'} ${Number(mov.tarifa_flete).toLocaleString('es-AR')}`} />
+              )}
+              {mov.tarifa_facturacion && (
+                <Fila label="Tarifa facturación" valor={`${mov.moneda_flete === 'USD' ? 'U$S' : '$'} ${Number(mov.tarifa_facturacion).toLocaleString('es-AR')}`} />
               )}
             </Seccion>
 
@@ -79,6 +82,9 @@ export default function ModalTicket({ mov, onClose }) {
               <Fila label="Carta de porte" valor={mov.nro_carta_porte} mono />
               <Fila label="CTG"            valor={mov.ctg} mono />
               <Fila label="Silo destino"   valor={mov.silo_destino} />
+              {mov.tipo_movimiento       && <Fila label="Tipo de movimiento" valor={mov.tipo_movimiento} />}
+              {mov.localidad_procedencia && <Fila label="Procedencia"        valor={mov.localidad_procedencia} />}
+              {mov.localidad_destino     && <Fila label="Destino"            valor={mov.localidad_destino} />}
             </Seccion>
 
             {/* Pesada */}

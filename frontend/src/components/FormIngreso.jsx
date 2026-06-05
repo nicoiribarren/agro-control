@@ -9,9 +9,20 @@ const GRANOS = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
 // Humedad base estándar por grano (espejo del backend)
 const HUMEDAD_BASE = { 'Soja': 13.5, 'Maíz': 14.0, 'Trigo': 11.0, 'Girasol': 9.0 };
 
+const TIPOS_MOVIMIENTO = [
+  'Directo a productor',
+  'Directo a contrato de compra',
+  'Egreso a contrato de compra',
+  'Movimiento entre contratos',
+  'Consignación',
+  'Canje',
+];
+
 const CAMPOS_REQUERIDOS = [
   // Carta de porte
   'patente', 'ctg', 'grano', 'productor', 'nro_carta_porte', 'kg_brutos', 'silo_destino',
+  // Tipo de movimiento
+  'tipo_movimiento',
   // Transporte
   'empresa_transporte', 'chofer', 'chofer_dni', 'patente_acoplado',
 ];
@@ -25,6 +36,10 @@ const vacío = {
   nro_carta_porte: '',
   kg_brutos: '',
   silo_destino: '',
+  tipo_movimiento: '',
+  // — Procedencia y destino —
+  localidad_procedencia: '',
+  localidad_destino: '',
   // — Transporte —
   empresa_transporte: '',
   chofer: '',
@@ -33,6 +48,7 @@ const vacío = {
   kilometraje: '',
   tarifa_flete: '',
   moneda_flete: 'ARS',
+  tarifa_facturacion: '',
   // — Calidad —
   humedad: '',
   granos_danados: '',
@@ -242,6 +258,32 @@ export default function FormIngreso({ onRegistrado }) {
               </select>
             </Campo>
           </div>
+
+          {/* Tipo de movimiento */}
+          <Campo label="TIPO DE MOVIMIENTO *">
+            <select value={form.tipo_movimiento} onChange={e => set('tipo_movimiento', e.target.value)}>
+              <option value="">— Seleccionar —</option>
+              {TIPOS_MOVIMIENTO.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </Campo>
+
+          {/* Procedencia y destino */}
+          <div style={fila2}>
+            <Campo label="LOCALIDAD DE PROCEDENCIA">
+              <input
+                value={form.localidad_procedencia}
+                onChange={e => set('localidad_procedencia', e.target.value)}
+                placeholder="Ej: La Hullera, Santa Fe"
+              />
+            </Campo>
+            <Campo label="LOCALIDAD DE DESTINO">
+              <input
+                value={form.localidad_destino}
+                onChange={e => set('localidad_destino', e.target.value)}
+                placeholder="Ej: San Eduardo, Santa Fe"
+              />
+            </Campo>
+          </div>
         </Seccion>
 
         {/* ══ SECCIÓN: Transporte ══════════════════════════════════════ */}
@@ -299,7 +341,7 @@ export default function FormIngreso({ onRegistrado }) {
           </div>
 
           <div style={fila2}>
-            <Campo label="TARIFA DE FLETE">
+            <Campo label="TARIFA DE REFERENCIA" sub="valor de mercado">
               <div style={{ display: 'flex', gap: 8 }}>
                 <select
                   value={form.moneda_flete}
@@ -316,6 +358,13 @@ export default function FormIngreso({ onRegistrado }) {
                   style={{ flex: 1 }}
                 />
               </div>
+            </Campo>
+            <Campo label="TARIFA DE FACTURACIÓN" sub="cobro al productor / pago al transportista">
+              <input
+                type="number" value={form.tarifa_facturacion}
+                onChange={e => set('tarifa_facturacion', e.target.value)}
+                placeholder="0.00" min={0} step="0.01"
+              />
             </Campo>
           </div>
         </Seccion>
