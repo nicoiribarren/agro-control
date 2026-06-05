@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../api.js';
+import { Settings, Scale, UserPlus, Pencil, Users, AlertTriangle } from 'lucide-react';
 
 export default function Usuarios() {
   const [usuarios,  setUsuarios]  = useState([]);
@@ -33,22 +34,22 @@ export default function Usuarios() {
       {/* Encabezado */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 2 }}>👥 Gestión de Usuarios</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 8 }}><Users size={20} /> Gestión de Usuarios</h2>
           <p style={{ fontSize: 13, color: 'var(--texto-suave)' }}>
             {activos.length} usuario{activos.length !== 1 ? 's' : ''} activo{activos.length !== 1 ? 's' : ''}
           </p>
         </div>
         <button
           onClick={() => setModal({ modo: 'crear' })}
-          style={{ background: 'var(--verde)', color: '#fff', padding: '9px 20px', fontWeight: 700 }}
+          style={{ background: 'var(--verde)', color: '#fff', padding: '9px 20px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}
         >
-          + Nuevo usuario
+          <UserPlus size={15} /> Nuevo usuario
         </button>
       </div>
 
       {error && (
-        <div style={{ background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', color: '#b91c1c', fontSize: 13 }}>
-          ⚠️ {error}
+        <div style={{ background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', color: '#b91c1c', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertTriangle size={14} /> {error}
         </div>
       )}
 
@@ -86,8 +87,8 @@ export default function Usuarios() {
                   </td>
                   <td style={td}>
                     {u.rol === 'admin'
-                      ? <Badge label="⚙️ Administrador" bg="#fef3c7" color="#92400e" border="#fcd34d" />
-                      : <Badge label="⚖️ Operador"      bg="#ede9fe" color="#5b21b6" border="#c4b5fd" />}
+                      ? <Badge label="Administrador" icon={<Settings size={11}/>} bg="#fef3c7" color="#92400e" border="#fcd34d" />
+                      : <Badge label="Operador"      icon={<Scale size={11}/>}    bg="#ede9fe" color="#5b21b6" border="#c4b5fd" />}
                   </td>
                   <td style={td}>
                     {u.activo
@@ -97,9 +98,9 @@ export default function Usuarios() {
                   <td style={{ ...td, textAlign: 'right' }}>
                     <button
                       onClick={() => setModal({ modo: 'editar', usuario: u })}
-                      style={{ background: 'var(--gris-bg)', color: 'var(--texto)', padding: '5px 14px', fontSize: 12, border: '1px solid var(--gris-borde)' }}
+                      style={{ background: 'var(--gris-bg)', color: 'var(--texto)', padding: '5px 14px', fontSize: 12, border: '1px solid var(--gris-borde)', display: 'flex', alignItems: 'center', gap: 5 }}
                     >
-                      Editar
+                      <Pencil size={12} /> Editar
                     </button>
                   </td>
                 </tr>
@@ -176,8 +177,8 @@ function ModalUsuario({ modo, usuario, onClose, onGuardado }) {
     >
       <div style={{ background: '#fff', borderRadius: 14, padding: 28, width: '100%', maxWidth: 400, boxShadow: '0 20px 60px rgba(0,0,0,.35)', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-        <div style={{ fontWeight: 700, fontSize: 17 }}>
-          {esEdicion ? `✏️ Editar usuario` : '➕ Nuevo usuario'}
+        <div style={{ fontWeight: 700, fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+          {esEdicion ? <><Pencil size={16}/> Editar usuario</> : <><UserPlus size={16}/> Nuevo usuario</>}
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
@@ -279,10 +280,10 @@ function Campo({ label, children }) {
   );
 }
 
-function Badge({ label, bg, color, border }) {
+function Badge({ label, icon, bg, color, border }) {
   return (
-    <span style={{ background: bg, color, border: `1px solid ${border}`, borderRadius: 20, padding: '3px 10px', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap' }}>
-      {label}
+    <span style={{ background: bg, color, border: `1px solid ${border}`, borderRadius: 20, padding: '3px 10px', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+      {icon}{label}
     </span>
   );
 }

@@ -1,5 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+@keyframes spin { to { transform: rotate(360deg); } }
+
 :root {
   --verde: #2d7a3a;
   --verde-claro: #e8f5eb;

@@ -4,6 +4,8 @@
  * Muestra el ticket completo y llama a window.print().
  * El CSS @media print (en index.css) oculta todo excepto .ticket-imprimible.
  */
+import { Printer, X } from 'lucide-react';
+
 export default function ModalTicket({ mov, onClose }) {
   function imprimir() {
     window.print();
@@ -35,12 +37,12 @@ export default function ModalTicket({ mov, onClose }) {
           {/* Botones de acción (se ocultan al imprimir) */}
           <div className="ticket-acciones" style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
             <button onClick={onClose}
-              style={{ background: 'rgba(255,255,255,.2)', color: '#fff', border: '1px solid rgba(255,255,255,.4)', padding: '8px 18px' }}>
-              ✕ Cerrar
+              style={{ background: 'rgba(255,255,255,.2)', color: '#fff', border: '1px solid rgba(255,255,255,.4)', padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <X size={14} /> Cerrar
             </button>
             <button onClick={imprimir}
-              style={{ background: '#fff', color: '#1a4d23', fontWeight: 800, padding: '8px 20px', boxShadow: '0 2px 8px rgba(0,0,0,.3)' }}>
-              🖨️ Imprimir / Guardar PDF
+              style={{ background: '#fff', color: '#1a4d23', fontWeight: 800, padding: '8px 20px', boxShadow: '0 2px 8px rgba(0,0,0,.3)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Printer size={14} /> Imprimir / Guardar PDF
             </button>
           </div>
 

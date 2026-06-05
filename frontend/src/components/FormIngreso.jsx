@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import QrScanner from './QrScanner.jsx';
 import { apiFetch } from '../api.js';
+import { FileText, Truck, FlaskConical, BarChart2, Search, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 const SILOS  = ['Silo 1', 'Silo 2', 'Silo 3', 'Silo 4', 'Silo 5', 'Celda A', 'Celda B', 'Planta'];
 const GRANOS = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
@@ -142,8 +143,8 @@ export default function FormIngreso({ onRegistrado }) {
     <div>
       <h2 style={{ marginBottom: 20, fontSize: 20, fontWeight: 700 }}>Registrar Ingreso de Camión</h2>
 
-      {error && <div style={alertStyle('var(--rojo)')}>⚠️ {error}</div>}
-      {exito && <div style={alertStyle('var(--verde)')}>{exito}</div>}
+      {error && <div style={{...alertStyle('var(--rojo)'), display:'flex', alignItems:'center', gap:8}}><AlertTriangle size={14}/> {error}</div>}
+      {exito && <div style={{...alertStyle('var(--verde)'), display:'flex', alignItems:'center', gap:8}}><CheckCircle2 size={14}/> {exito.replace('✅ ','')}</div>}
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 24 }}>
 
@@ -151,7 +152,7 @@ export default function FormIngreso({ onRegistrado }) {
         <QrScanner onDetected={handleCTGDetected} />
 
         {/* ══ SECCIÓN: Carta de Porte ══════════════════════════════════ */}
-        <Seccion titulo="📄 Carta de Porte">
+        <Seccion titulo="Carta de Porte" Icon={FileText}>
 
           {/* Fila: Patente + CTG */}
           <div style={fila2}>
@@ -179,7 +180,7 @@ export default function FormIngreso({ onRegistrado }) {
                   disabled={consultando || !form.ctg}
                   style={{ background: 'var(--verde)', color: '#fff', whiteSpace: 'nowrap', minWidth: 110 }}
                 >
-                  {consultando ? '⏳ Consultando…' : '🔍 Consultar'}
+                  {consultando ? <><Loader2 size={13} style={{animation:'spin 1s linear infinite'}}/> Consultando…</> : <><Search size={13}/> Consultar</>}
                 </button>
               </div>
             </Campo>
@@ -244,7 +245,7 @@ export default function FormIngreso({ onRegistrado }) {
         </Seccion>
 
         {/* ══ SECCIÓN: Transporte ══════════════════════════════════════ */}
-        <Seccion titulo="🚛 Datos del Transporte">
+        <Seccion titulo="Datos del Transporte" Icon={Truck}>
 
           <div style={fila2}>
             <Campo label="EMPRESA DE TRANSPORTE *">
@@ -320,7 +321,7 @@ export default function FormIngreso({ onRegistrado }) {
         </Seccion>
 
         {/* ══ SECCIÓN: Calidad ══════════════════════════════════════════ */}
-        <Seccion titulo="🔬 Análisis de Calidad" opcional>
+        <Seccion titulo="Análisis de Calidad" Icon={FlaskConical} opcional>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
             {[
@@ -365,8 +366,8 @@ export default function FormIngreso({ onRegistrado }) {
             borderRadius: 10,
             padding: '16px 20px',
           }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: '#5b21b6', marginBottom: 12 }}>
-              📊 Resumen de liquidación estimado
+            <div style={{ fontWeight: 700, fontSize: 14, color: '#5b21b6', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <BarChart2 size={15} /> Resumen de liquidación estimado
             </div>
             <div style={{ fontSize: 13, color: '#555' }}>
               (El peso neto y el liquidable definitivo se calculan al registrar el egreso con la tara real)
@@ -400,9 +401,10 @@ export default function FormIngreso({ onRegistrado }) {
               background: 'var(--verde)', color: '#fff',
               padding: '11px 32px', fontSize: 15,
               boxShadow: '0 2px 8px rgba(45,122,58,.35)',
+              display: 'flex', alignItems: 'center', gap: 8,
             }}
           >
-            {enviando ? 'Registrando…' : '✅ Registrar Ingreso'}
+            {enviando ? <><Loader2 size={15} style={{animation:'spin 1s linear infinite'}}/> Registrando…</> : <><CheckCircle2 size={15}/> Registrar Ingreso</>}
           </button>
         </div>
 
@@ -413,7 +415,7 @@ export default function FormIngreso({ onRegistrado }) {
 
 // ─── Sub-componentes ───────────────────────────────────────────────────────────
 
-function Seccion({ titulo, opcional, children }) {
+function Seccion({ titulo, Icon, opcional, children }) {
   return (
     <fieldset style={{
       border: '1px solid var(--gris-borde)',
@@ -426,6 +428,7 @@ function Seccion({ titulo, opcional, children }) {
         fontWeight: 700, fontSize: 14, color: 'var(--texto)',
         padding: '0 8px', display: 'flex', alignItems: 'center', gap: 8,
       }}>
+        {Icon && <Icon size={14} />}
         {titulo}
         {opcional && (
           <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--texto-suave)', background: '#f0f2f4', borderRadius: 4, padding: '1px 6px' }}>

@@ -6,6 +6,7 @@ import Dashboard    from './components/Dashboard.jsx';
 import Reportes     from './components/Reportes.jsx';
 import Usuarios     from './components/Usuarios.jsx';
 import { apiFetch } from './api.js';
+import { Plus, LayoutDashboard, BarChart2, Users, Settings, Scale, KeyRound, LogOut, User, RefreshCw } from 'lucide-react';
 
 // ── Wrapper que decide si mostrar login o la app ───────────────────────────
 export default function App() {
@@ -26,10 +27,10 @@ function AppInner() {
 }
 
 const TABS = [
-  { key: 'form',      label: '+ Registrar Ingreso',  shortLabel: 'Registrar', icon: '➕', roles: ['admin','operador'] },
-  { key: 'dashboard', label: '📋 Dashboard del Día', shortLabel: 'Dashboard', icon: '📋', roles: ['admin','operador'] },
-  { key: 'reportes',  label: '📊 Reportes',          shortLabel: 'Reportes',  icon: '📊', roles: ['admin'] },
-  { key: 'usuarios',  label: '👥 Usuarios',           shortLabel: 'Usuarios',  icon: '👥', roles: ['admin'] },
+  { key: 'form',      label: 'Registrar Ingreso', shortLabel: 'Registrar', Icon: Plus,            roles: ['admin','operador'] },
+  { key: 'dashboard', label: 'Dashboard del Día', shortLabel: 'Dashboard', Icon: LayoutDashboard, roles: ['admin','operador'] },
+  { key: 'reportes',  label: 'Reportes',          shortLabel: 'Reportes',  Icon: BarChart2,       roles: ['admin'] },
+  { key: 'usuarios',  label: 'Usuarios',          shortLabel: 'Usuarios',  Icon: Users,           roles: ['admin'] },
 ];
 
 // ── Shell principal de la app (solo si está autenticado) ───────────────────
@@ -91,8 +92,10 @@ function AppShell() {
                   border: tab === t.key ? '1px solid rgba(255,255,255,.5)' : '1px solid transparent',
                   padding: '7px 16px',
                   fontSize: 13,
+                  display: 'flex', alignItems: 'center', gap: 6,
                 }}
               >
+                <t.Icon size={14} />
                 {t.label}
               </button>
             ))}
@@ -118,8 +121,9 @@ function AppShell() {
               <span className="header-user-name" style={{ fontSize: 13, fontWeight: 600 }}>
                 {usuario.nombre || usuario.email.split('@')[0]}
               </span>
-              <span style={{ fontSize: 10, opacity: .75 }}>
-                {usuario.rol === 'admin' ? '⚙️ Administrador' : '⚖️ Operador'} ▾
+              <span style={{ fontSize: 10, opacity: .75, display: 'flex', alignItems: 'center', gap: 4 }}>
+                {usuario.rol === 'admin' ? <Settings size={10} /> : <Scale size={10} />}
+                {usuario.rol === 'admin' ? 'Administrador' : 'Operador'} ▾
               </span>
             </button>
 
@@ -137,19 +141,19 @@ function AppShell() {
                 </div>
                 <button
                   onClick={() => { setModalPass(true); setMenuAbierto(false); }}
-                  style={{ width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13, color: '#333', background: 'none', border: 'none', cursor: 'pointer' }}
-                  onMouseEnter={e => e.target.style.background = '#f5f5f5'}
-                  onMouseLeave={e => e.target.style.background = 'none'}
+                  style={{ width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13, color: '#333', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  🔑 Cambiar contraseña
+                  <KeyRound size={14} /> Cambiar contraseña
                 </button>
                 <button
                   onClick={logout}
-                  style={{ width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', borderTop: '1px solid #f0f0f0' }}
-                  onMouseEnter={e => e.target.style.background = '#fff5f5'}
-                  onMouseLeave={e => e.target.style.background = 'none'}
+                  style={{ width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 8 }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#fff5f5'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  🚪 Cerrar sesión
+                  <LogOut size={14} /> Cerrar sesión
                 </button>
               </div>
             )}
@@ -176,7 +180,7 @@ function AppShell() {
             className={`bottom-nav-btn${tab === t.key ? ' activo' : ''}`}
             onClick={() => setTab(t.key)}
           >
-            <span className="bnav-icon">{t.icon}</span>
+            <t.Icon size={18} className="bnav-icon" />
             {t.shortLabel}
           </button>
         ))}
@@ -184,7 +188,7 @@ function AppShell() {
           className="bottom-nav-btn"
           onClick={() => setMenuAbierto(v => !v)}
         >
-          <span className="bnav-icon">👤</span>
+          <User size={18} className="bnav-icon" />
           Cuenta
         </button>
       </nav>

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../api.js';
 import ModalTicket from './ModalTicket.jsx';
+import { Truck, Building2, CheckCircle2, Scale, TrendingDown, Leaf, RefreshCw, Clock, MapPin, Printer, AlertTriangle } from 'lucide-react';
 
 const GRANO_COLOR = { Soja: '#f0a500', Maíz: '#e8c840', Trigo: '#c8a050', Girasol: '#e06820' };
-const GRANO_ICON  = { Soja: '🫘', Maíz: '🌽', Trigo: '🌾', Girasol: '🌻' };
 
 // ─────────────────────────────────────────────
 // Modal de egreso
@@ -140,8 +140,8 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
 
             {/* Error */}
             {error && (
-              <div style={{ background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#b91c1c' }}>
-                ⚠️ {error}
+              <div style={{ background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <AlertTriangle size={14} /> {error}
               </div>
             )}
 
@@ -186,8 +186,8 @@ function ModalEgreso({ mov, onClose, onEgresado }) {
 
             <div style={{ display: 'flex', gap: 10 }}>
               <button type="button" onClick={() => setVerTicket(true)}
-                style={{ flex: 1, background: '#1a4d23', color: '#fff', padding: '10px', fontSize: 14, fontWeight: 700 }}>
-                🖨️ Imprimir remito
+                style={{ flex: 1, background: '#1a4d23', color: '#fff', padding: '10px', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <Printer size={15} /> Imprimir remito
               </button>
               <button type="button" onClick={onClose}
                 style={{ flex: 1, background: 'var(--verde)', color: '#fff', padding: '10px', fontSize: 14 }}>
@@ -254,30 +254,30 @@ export default function Dashboard() {
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 2 }}>Dashboard del Día</h2>
           <p style={{ fontSize: 13, color: 'var(--texto-suave)', textTransform: 'capitalize' }}>{hoy}</p>
         </div>
-        <button onClick={cargar} style={{ background: 'var(--verde)', color: '#fff' }}>🔄 Actualizar</button>
+        <button onClick={cargar} style={{ background: 'var(--verde)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}><RefreshCw size={14} /> Actualizar</button>
       </div>
 
       {/* ── Tarjetas de resumen ── */}
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(165px, 1fr))', gap: 12 }}>
-          <StatCard label="Total ingresos"     value={stats.totales.total_camiones}  icon="🚛" color="var(--verde)" />
+          <StatCard label="Total ingresos"     value={stats.totales.total_camiones}  Icon={Truck}         color="var(--verde)" />
           <StatCard
             label="En planta ahora"
             value={stats.totales.en_planta}
-            icon="🏭"
+            Icon={Building2}
             color={stats.totales.en_planta > 0 ? '#2563eb' : 'var(--texto-suave)'}
           />
-          <StatCard label="Egresados hoy"      value={stats.totales.egresados}       icon="✅" color="#059669" />
+          <StatCard label="Egresados hoy"      value={stats.totales.egresados}       Icon={CheckCircle2}  color="#059669" />
           <StatCard
             label="Kg netos (cerrados)"
             value={(stats.totales.kg_netos_total || 0).toLocaleString('es-AR') + ' kg'}
-            icon="⚖️"
+            Icon={Scale}
             color="#7c3aed"
           />
           <StatCard
             label="Kg liquidables"
             value={(stats.totales.kg_liquidable_total || 0).toLocaleString('es-AR') + ' kg'}
-            icon="💰"
+            Icon={TrendingDown}
             color="#b45309"
             sub="con descuentos calidad"
           />
@@ -291,7 +291,7 @@ export default function Dashboard() {
                 : g.kg_netos_total > 0
                   ? `${g.kg_netos_total.toLocaleString('es-AR')} kg netos`
                   : `${g.kg_brutos_total.toLocaleString('es-AR')} kg brutos`}
-              icon={GRANO_ICON[g.grano] || '🌱'}
+              Icon={Leaf}
               color={GRANO_COLOR[g.grano] || '#888'}
             />
           ))}
@@ -301,7 +301,7 @@ export default function Dashboard() {
       {/* ── Camiones en planta ── */}
       <section>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>🏭 Camiones en planta</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Building2 size={16} /> Camiones en planta</h3>
           {enPlanta.length > 0 && (
             <span style={{ background: '#dbeafe', color: '#1d4ed8', borderRadius: 20, padding: '2px 10px', fontSize: 12, fontWeight: 700 }}>
               {enPlanta.length}
@@ -310,7 +310,8 @@ export default function Dashboard() {
         </div>
 
         {enPlanta.length === 0 ? (
-          <div style={{ background: '#fff', border: '1px solid var(--gris-borde)', borderRadius: 10, padding: '28px 24px', textAlign: 'center', color: 'var(--texto-suave)', fontSize: 14 }}>
+          <div style={{ background: '#fff', border: '1px solid var(--gris-borde)', borderRadius: 10, padding: '28px 24px', textAlign: 'center', color: 'var(--texto-suave)', fontSize: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <Truck size={28} style={{ opacity: .3 }} />
             No hay camiones en planta en este momento
           </div>
         ) : (
@@ -324,11 +325,11 @@ export default function Dashboard() {
 
       {/* ── Tabla general del día ── */}
       <section>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>📋 Todos los movimientos del día</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Truck size={16} /> Todos los movimientos del día</h3>
 
         {movimientos.length === 0 ? (
-          <div style={{ background: '#fff', border: '1px solid var(--gris-borde)', borderRadius: 10, padding: '48px 24px', textAlign: 'center', color: 'var(--texto-suave)' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🚛</div>
+          <div style={{ background: '#fff', border: '1px solid var(--gris-borde)', borderRadius: 10, padding: '48px 24px', textAlign: 'center', color: 'var(--texto-suave)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <Truck size={40} style={{ opacity: .25 }} />
             <div style={{ fontWeight: 600 }}>Sin movimientos hoy</div>
           </div>
         ) : (
@@ -372,9 +373,9 @@ export default function Dashboard() {
                         {m.estado === 'egresado' && (
                           <button
                             onClick={() => setTicketMov(m)}
-                            style={{ background: '#1a4d23', color: '#fff', padding: '5px 12px', fontSize: 12, borderRadius: 6, whiteSpace: 'nowrap' }}
+                            style={{ background: '#1a4d23', color: '#fff', padding: '5px 12px', fontSize: 12, borderRadius: 6, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
                           >
-                            🖨️ Imprimir remito
+                            <Printer size={12} /> Imprimir remito
                           </button>
                         )}
                       </td>
@@ -437,9 +438,9 @@ function CardEnPlanta({ mov, onEgreso }) {
         <div style={{ fontSize: 12, color: 'var(--texto-suave)' }}>🚗 {mov.chofer}</div>
       )}
       <div style={{ display: 'flex', gap: 16, fontSize: 13, flexWrap: 'wrap' }}>
-        <InfoLine icon="⏰" label={hora(mov.fecha_ingreso)} />
-        <InfoLine icon="📍" label={mov.silo_destino} />
-        <InfoLine icon="⚖️" label={mov.kg_brutos.toLocaleString('es-AR') + ' kg'} />
+        <InfoLine icon={<Clock size={13} />} label={hora(mov.fecha_ingreso)} />
+        <InfoLine icon={<MapPin size={13} />} label={mov.silo_destino} />
+        <InfoLine icon={<Scale size={13} />} label={mov.kg_brutos.toLocaleString('es-AR') + ' kg'} />
       </div>
       <button type="button" onClick={onEgreso}
         style={{ background: 'var(--verde)', color: '#fff', width: '100%', padding: '8px', fontSize: 13, marginTop: 2 }}>
@@ -449,14 +450,14 @@ function CardEnPlanta({ mov, onEgreso }) {
   );
 }
 
-function StatCard({ label, value, sub, icon, color }) {
+function StatCard({ label, value, sub, Icon, color }) {
   return (
     <div style={{
       background: '#fff', border: '1px solid var(--gris-borde)',
       borderLeft: `4px solid ${color}`, borderRadius: 10,
       padding: '14px 16px', boxShadow: 'var(--sombra)',
     }}>
-      <div style={{ fontSize: 20, marginBottom: 5 }}>{icon}</div>
+      <div style={{ marginBottom: 5, color }}><Icon size={18} /></div>
       <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: 'var(--texto-suave)', marginTop: 2 }}>{sub}</div>}
       <div style={{ fontSize: 12, color: 'var(--texto-suave)', marginTop: 4 }}>{label}</div>

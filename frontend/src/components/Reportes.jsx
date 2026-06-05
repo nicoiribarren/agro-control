@@ -2,6 +2,7 @@ import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import { apiFetch } from '../api.js';
 import ModalTicket from './ModalTicket.jsx';
+import { BarChart2, Truck, CheckCircle2, Building2, Scale, TrendingDown, Search, Loader2, Printer, AlertTriangle, FileSpreadsheet, ClipboardList } from 'lucide-react';
 
 const GRANOS  = ['Soja', 'Maíz', 'Trigo', 'Girasol'];
 const GRANO_COLOR = { Soja: '#f0a500', Maíz: '#e8c840', Trigo: '#c8a050', Girasol: '#e06820' };
@@ -123,7 +124,7 @@ export default function Reportes() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
       <div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>📊 Reportes Históricos</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}><BarChart2 size={20} /> Reportes Históricos</h2>
         <p style={{ fontSize: 13, color: 'var(--texto-suave)' }}>Filtrá y exportá los movimientos de cualquier período</p>
       </div>
 
@@ -164,14 +165,14 @@ export default function Reportes() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="submit" disabled={cargando}
             style={{ flex: 1, background: 'var(--verde)', color: '#fff', padding: '9px 0', fontWeight: 700 }}>
-            {cargando ? '⏳ Buscando…' : '🔍 Buscar'}
+            {cargando ? <><Loader2 size={13} style={{animation:'spin 1s linear infinite'}}/> Buscando…</> : <><Search size={13}/> Buscar</>}
           </button>
         </div>
       </form>
 
       {error && (
-        <div style={{ background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', color: '#b91c1c', fontSize: 13 }}>
-          ⚠️ {error}
+        <div style={{ background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', color: '#b91c1c', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertTriangle size={14} /> {error}
         </div>
       )}
 
@@ -180,11 +181,11 @@ export default function Reportes() {
         <>
           {/* Tarjetas de totales */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 12 }}>
-            <StatCard icon="🚛" label="Movimientos"   value={tots.total_camiones}                                      color="var(--verde)" />
-            <StatCard icon="✅" label="Egresados"     value={tots.egresados}                                           color="#059669" />
-            <StatCard icon="🏭" label="En planta"     value={tots.en_planta}                                           color="#2563eb" />
-            <StatCard icon="⚖️" label="Kg netos"     value={(tots.kg_netos_total || 0).toLocaleString('es-AR') + ' kg'} color="#7c3aed" />
-            <StatCard icon="💰" label="Kg liquidable" value={(tots.kg_liquidable_total || 0).toLocaleString('es-AR') + ' kg'} color="#b45309" />
+            <StatCard Icon={Truck}        label="Movimientos"   value={tots.total_camiones}                                        color="var(--verde)" />
+            <StatCard Icon={CheckCircle2} label="Egresados"     value={tots.egresados}                                             color="#059669" />
+            <StatCard Icon={Building2}    label="En planta"     value={tots.en_planta}                                             color="#2563eb" />
+            <StatCard Icon={Scale}        label="Kg netos"      value={(tots.kg_netos_total || 0).toLocaleString('es-AR') + ' kg'} color="#7c3aed" />
+            <StatCard Icon={TrendingDown} label="Kg liquidable" value={(tots.kg_liquidable_total || 0).toLocaleString('es-AR') + ' kg'} color="#b45309" />
           </div>
 
           {/* Tabla + botón export */}
@@ -200,14 +201,14 @@ export default function Reportes() {
                   onClick={exportarExcel}
                   style={{ background: '#16a34a', color: '#fff', padding: '7px 18px', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}
                 >
-                  📥 Exportar Excel
+                  <FileSpreadsheet size={14}/> Exportar Excel
                 </button>
               )}
             </div>
 
             {movs.length === 0 ? (
-              <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--texto-suave)' }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
+              <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--texto-suave)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                <ClipboardList size={36} style={{ opacity: .25 }} />
                 <div style={{ fontWeight: 600 }}>Sin resultados para los filtros seleccionados</div>
               </div>
             ) : (
@@ -253,7 +254,7 @@ export default function Reportes() {
                               onClick={() => setTicketMov(m)}
                               style={{ background: '#1a4d23', color: '#fff', padding: '5px 12px', fontSize: 12, borderRadius: 6, whiteSpace: 'nowrap' }}
                             >
-                              🖨️ Imprimir remito
+                              <Printer size={12}/> Imprimir remito
                             </button>
                           )}
                         </td>
@@ -293,10 +294,10 @@ function Campo({ label, children }) {
   );
 }
 
-function StatCard({ icon, label, value, color }) {
+function StatCard({ Icon, label, value, color }) {
   return (
     <div style={{ background: '#fff', border: '1px solid var(--gris-borde)', borderLeft: `4px solid ${color}`, borderRadius: 10, padding: '12px 16px', boxShadow: 'var(--sombra)' }}>
-      <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
+      <div style={{ marginBottom: 4, color }}><Icon size={18} /></div>
       <div style={{ fontSize: 17, fontWeight: 700, color }}>{value}</div>
       <div style={{ fontSize: 12, color: 'var(--texto-suave)', marginTop: 2 }}>{label}</div>
     </div>
