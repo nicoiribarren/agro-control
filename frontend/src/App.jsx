@@ -61,17 +61,18 @@ function AppShell() {
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header style={{
-        background: 'var(--verde)',
+        background: 'var(--verde-oscuro)',
         color: '#fff',
         padding: '0 24px',
         display: 'flex',
         alignItems: 'center',
         gap: 16,
-        boxShadow: '0 2px 8px rgba(0,0,0,.2)',
+        boxShadow: '0 2px 12px rgba(0,0,0,.3)',
         position: 'sticky',
         top: 0,
         zIndex: 100,
         minHeight: 56,
+        borderBottom: '1px solid rgba(234,179,8,.15)',
       }}>
         <img src="/logo.png" alt="JKI Agro" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
         <div>

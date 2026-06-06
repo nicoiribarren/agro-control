@@ -40,7 +40,7 @@ export default function LoginPage() {
 
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #1a4d23 0%, #2d7a3a 60%, #3a9e4a 100%)',
+        background: 'linear-gradient(160deg, #0a2f1c 0%, #111814 50%, #0a2f1c 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -62,7 +62,7 @@ export default function LoginPage() {
             <span key={letra} style={{
               fontSize: 'clamp(220px, 38vw, 520px)',
               fontWeight: 900,
-              color: 'rgba(0,0,0,0.18)',
+              color: 'rgba(255,255,255,0.04)',
               filter: 'blur(3px)',
               lineHeight: 1,
               letterSpacing: 0,
@@ -154,13 +154,14 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               style={{
-                background: loading ? '#6b9e74' : 'var(--verde)',
-                color: '#fff',
+                background: loading ? '#ca9a07' : '#eab308',
+                color: '#111814',
                 padding: '12px',
                 fontSize: 15,
                 fontWeight: 700,
                 marginTop: 4,
-                boxShadow: '0 4px 12px rgba(45,122,58,.4)',
+                boxShadow: '0 4px 12px rgba(234,179,8,.35)',
+                letterSpacing: '0.02em',
               }}
             >
               {loading ? 'Iniciando sesión…' : 'Iniciar sesión'}
